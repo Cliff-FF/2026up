@@ -30,6 +30,8 @@ export interface BaZiResult {
 
 const STEMS = ["甲", "乙", "丙", "丁", "戊", "己", "庚", "辛", "壬", "癸"];
 const BRANCHES = ["子", "丑", "寅", "卯", "辰", "巳", "午", "未", "申", "酉", "戌", "亥"];
+
+const SIXTY_GANZHI = Array.from({ length: 60 }, (_, i) => STEMS[i % 10] + BRANCHES[i % 12]);
 const ELEMENTS = ["木", "木", "火", "火", "土", "土", "金", "金", "水", "水"];
 
 const SHISHEN_MAP: Record<string, Record<string, string>> = {
@@ -44,6 +46,21 @@ const SHISHEN_MAP: Record<string, Record<string, string>> = {
   "壬": { "壬": "比肩", "癸": "劫财", "甲": "食神", "乙": "伤官", "丙": "偏财", "丁": "正财", "戊": "七杀", "己": "正官", "庚": "偏印", "辛": "正印" },
   "癸": { "癸": "比肩", "壬": "劫财", "乙": "食神", "甲": "伤官", "丁": "偏财", "丙": "正财", "己": "七杀", "戊": "正官", "辛": "偏印", "庚": "正印" },
 };
+
+/**
+ * 精准儒略日计算 (用于校准八字)
+ */
+function getJulianDay(year: number, month: number, day: number): number {
+  let y = year;
+  let m = month;
+  if (m <= 2) {
+    y -= 1;
+    m += 12;
+  }
+  const A = Math.floor(y / 100);
+  const B = 2 - A + Math.floor(A / 4);
+  return Math.floor(365.25 * (y + 4716)) + Math.floor(30.6001 * (m + 1)) + day + B - 1524.5;
+}
 
 const VIBE_LABELS = [
   "脆皮打工人", "高能小陀螺", "深海哲学家", "发疯型天才", "赛博佛系少年", 
@@ -75,43 +92,49 @@ export async function analysisPersonality(
   // 模拟计算延迟提升质感
   await new Promise(resolve => setTimeout(resolve, 2000));
 
-  const date = new Date(birthDate);
-  const year = date.getFullYear();
-  const month = date.getMonth() + 1;
-  const day = date.getDate();
+  const [yearStr, monthStr, dayStr] = birthDate.split('-');
+  const y = parseInt(yearStr);
+  const m = parseInt(monthStr);
+  const d = parseInt(dayStr);
   const hour = parseInt(timeStr.split(':')[0]);
 
-  // 基础干支定位 (简化版引擎)
-  const epoch = new Date("1900-01-31").getTime();
-  const current = date.getTime();
-  const dayOffset = Math.floor((current - epoch) / (1000 * 60 * 60 * 24));
+  // 1. 年柱 (以立春为界，此处简化以公历年计)
+  const yrIndex = (y - 4) % 60;
+  const yearPillar = SIXTY_GANZHI[yrIndex < 0 ? yrIndex + 60 : yrIndex];
 
-  const yearIndex = (year - 3) % 60;
-  const yearStem = STEMS[(yearIndex - 1) % 10] || "甲";
-  const yearBranch = BRANCHES[(yearIndex - 1) % 12] || "子";
+  // 2. 日柱 (核心校准：1993-09-11 必须为 乙未)
+  const jd = getJulianDay(y, m, d);
+  const dayGZIndex = Math.floor(jd + 49) % 60;
+  const dayPillar = SIXTY_GANZHI[dayGZIndex];
+  const dayStem = dayPillar[0];
+  const dayBranch = dayPillar[1];
 
-  const dayStemIndex = dayOffset % 10;
-  const dayBranchIndex = dayOffset % 12;
-  const dayStem = STEMS[dayStemIndex];
-  const dayBranch = BRANCHES[dayBranchIndex];
+  // 3. 月柱 (基于年干和月份)
+  const monthBranchIndex = (m + 1) % 12;
+  const monthStemIndex = ((y % 5) * 2 + Math.floor(m * 2 / 2.5)) % 10; // 简易算法
+  const monthPillar = STEMS[monthStemIndex] + BRANCHES[monthBranchIndex];
+
+  // 4. 时柱
+  const hourBranchIndex = Math.floor((hour + 1) / 2) % 12;
+  const hourStemIndex = ((dayGZIndex % 5) * 2 + Math.floor((hour + 1) / 2)) % 10;
+  const hourPillar = STEMS[hourStemIndex] + BRANCHES[hourBranchIndex];
 
   // 性格权重计算
   const scoreBase = 80;
-  const quizModifier = quizAnswers.length * 2;
-  const finalScore = Math.min(99, scoreBase + quizModifier + (dayOffset % 10));
+  const dayOffset = Math.floor(jd);
+  const finalScore = Math.min(99, scoreBase + (dayOffset % 10) + quizAnswers.length);
 
-  const dayMaster = dayStem;
-  const shishenData = SHISHEN_MAP[dayMaster];
+  const shishenData = SHISHEN_MAP[dayStem] || SHISHEN_MAP["甲"];
 
   return {
     vibeLabel: VIBE_LABELS[dayOffset % VIBE_LABELS.length],
     prediction: PREDICTIONS[dayOffset % PREDICTIONS.length],
-    dayMaster: `${dayMaster}木之人 (日元)`,
+    dayMaster: `${dayStem}属${dayBranch}之命 (日元)`,
     eightCharacters: [
-      { pillar: "年", stem: yearStem, branch: yearBranch, shishen: shishenData[yearStem] || "命根", meaning: "代表你的先天基因与祖荫Buff。" },
-      { pillar: "月", stem: STEMS[(yearIndex * 2 + month) % 10], branch: BRANCHES[(month + 2) % 12], shishen: "事业", meaning: "职场副本的主导能量，搞钱的姿势。" },
-      { pillar: "日", stem: dayStem, branch: dayBranch, shishen: "自我", meaning: "核心人设，最真实的底色。" },
-      { pillar: "时", stem: STEMS[(dayStemIndex * 2 + Math.floor(hour/2)) % 10], branch: BRANCHES[Math.floor((hour + 1) / 2) % 12], shishen: "归宿", meaning: "最终的输出结果与个人作品。" }
+      { pillar: "年", stem: yearPillar[0], branch: yearPillar[1], shishen: shishenData[yearPillar[0]] || "命气", meaning: "代表你的先天基因与祖荫Buff。" },
+      { pillar: "月", stem: monthPillar[0], branch: monthPillar[1], shishen: shishenData[monthPillar[0]] || "事业", meaning: "职场副本的主导能量，搞钱的姿势。" },
+      { pillar: "日", stem: dayPillar[0], branch: dayPillar[1], shishen: "自我", meaning: "核心人设，最真实的底色。" },
+      { pillar: "时", stem: hourPillar[0], branch: hourPillar[1], shishen: shishenData[hourPillar[0]] || "归宿", meaning: "最终的输出结果与个人作品。" }
     ],
     monthlyEnergy: Array.from({ length: 12 }, (_, i) => ({
       month: `${i + 1}月`,

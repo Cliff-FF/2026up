@@ -660,20 +660,16 @@ function ResultView({ result, reset }: { result: BaZiResult, reset: () => void }
                   
                   <div className="relative group">
                     <div className="absolute -inset-4 bg-[#07C160]/5 rounded-[3rem] blur-xl opacity-0 group-hover:opacity-100 transition duration-700"></div>
-                    <div className="relative aspect-square max-w-[200px] mx-auto bg-paper rounded-[2.5rem] border-2 border-[#07C160]/10 flex items-center justify-center p-6 bg-white overflow-hidden">
-                       {/* Placeholder CSS QR code */}
-                       <div className="w-full h-full border-4 border-ink grid grid-cols-5 grid-rows-5 gap-1 p-2 opacity-80">
-                         {Array.from({length: 25}).map((_, i) => (
-                           <div key={i} className={cn("bg-ink rounded-sm", Math.random() > 0.5 ? "opacity-100" : "opacity-0")} />
-                         ))}
-                         {/* Positioning Squares */}
-                         <div className="absolute top-8 left-8 w-6 h-6 border-4 border-ink bg-white flex items-center justify-center"><div className="w-2 h-2 bg-ink" /></div>
-                         <div className="absolute top-8 right-8 w-6 h-6 border-4 border-ink bg-white flex items-center justify-center"><div className="w-2 h-2 bg-ink" /></div>
-                         <div className="absolute bottom-8 left-8 w-6 h-6 border-4 border-ink bg-white flex items-center justify-center"><div className="w-2 h-2 bg-ink" /></div>
-                       </div>
+                    <div className="relative aspect-square max-w-[200px] mx-auto bg-white rounded-[2.5rem] border-2 border-[#07C160]/10 flex items-center justify-center p-6 shadow-sm overflow-hidden">
+                       <svg viewBox="0 0 100 100" className="w-full h-full text-ink fill-current">
+                         <path d="M0 0h30v30H0zM10 10h10v10H10zM70 0h30v30H70zM80 10h10v10H80zM0 70h30v30H0zM10 80h10v10H10z" />
+                         <path d="M40 0h10v10H40zM60 0h10v10H60zM40 20h20v10H40zM20 40h10v10H20zM40 40h10v10H40zM60 40h10v10H60zM80 40h20v10H80zM0 60h20v10H0zM40 60h20v10H40zM70 60h10v10H70zM90 60h10v10H90zM40 80h10v10H40zM60 80h10v10H60zM80 80h10v10H80zM50 50h10v10H50zM30 10h10v10H30zM50 30h10v10H50zM70 40h10v10H70zM10 50h10v10H10zM90 20h10v10H90zM20 90h10v10H20zM40 90h10v10H40zM70 90h10v10H70z" />
+                       </svg>
                        <div className="absolute inset-0 flex items-center justify-center">
-                          <div className="bg-white p-2 rounded-xl shadow-lg border border-ink/5">
-                            <img src="https://upload.wikimedia.org/wikipedia/commons/7/73/WeChat_logo.svg" className="w-6 h-6" alt="WeChat" />
+                          <div className="bg-white p-1.5 rounded-xl shadow-lg border border-ink/5">
+                            <div className="w-8 h-8 bg-[#07C160] rounded-lg flex items-center justify-center">
+                              <img src="https://upload.wikimedia.org/wikipedia/commons/7/73/WeChat_logo.svg" className="w-5 h-5 brightness-0 invert" alt="WeChat" />
+                            </div>
                           </div>
                        </div>
                     </div>
