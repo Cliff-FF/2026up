@@ -17,6 +17,8 @@ export default function App() {
   const [birthData, setBirthData] = useState({
     date: '',
     time: '12:00',
+    gender: '男',
+    city: '北京'
   });
   const [answers, setAnswers] = useState<{ q: string; a: string }[]>([]);
   const [result, setResult] = useState<BaZiResult | null>(null);
@@ -37,6 +39,8 @@ export default function App() {
       const resultData = await analysisPersonality(
         birthData.date,
         birthData.time,
+        birthData.gender,
+        birthData.city,
         quizAnswers
       );
       setResult(resultData);
@@ -114,15 +118,49 @@ export default function App() {
                 </div>
               </div>
 
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-[10px] uppercase tracking-widest font-bold opacity-40 ml-1">降临时分</label>
+                  <input
+                    required
+                    type="time"
+                    value={birthData.time}
+                    onChange={e => setBirthData({ ...birthData, time: e.target.value })}
+                    className="w-full bg-white border border-ink/5 rounded-2xl py-4 px-6 focus:outline-none focus:ring-2 focus:ring-gold/20 transition-all font-mono text-center text-2xl"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[10px] uppercase tracking-widest font-bold opacity-40 ml-1">出生城市</label>
+                  <input
+                    required
+                    type="text"
+                    placeholder="如：北京"
+                    value={birthData.city}
+                    onChange={e => setBirthData({ ...birthData, city: e.target.value })}
+                    className="w-full bg-white border border-ink/5 rounded-2xl py-4 px-6 focus:outline-none focus:ring-2 focus:ring-gold/20 transition-all font-mono text-center text-xl"
+                  />
+                </div>
+              </div>
+
               <div className="space-y-2">
-                <label className="text-[10px] uppercase tracking-widest font-bold opacity-40 ml-1">降临时分</label>
-                <input
-                  required
-                  type="time"
-                  value={birthData.time}
-                  onChange={e => setBirthData({ ...birthData, time: e.target.value })}
-                  className="w-full bg-white border border-ink/5 rounded-2xl py-4 px-6 focus:outline-none focus:ring-2 focus:ring-gold/20 transition-all font-mono text-center text-2xl"
-                />
+                <label className="text-[10px] uppercase tracking-widest font-bold opacity-40 ml-1">能量属性 (性别)</label>
+                <div className="grid grid-cols-2 gap-4">
+                  {['男', '女'].map((g) => (
+                    <button
+                      key={g}
+                      type="button"
+                      onClick={() => setBirthData({ ...birthData, gender: g })}
+                      className={cn(
+                        "py-3 rounded-2xl font-bold transition-all border text-sm",
+                        birthData.gender === g 
+                          ? "bg-ink text-paper border-ink shadow-lg shadow-ink/10" 
+                          : "bg-white text-ink/40 border-ink/5 hover:border-gold/30"
+                      )}
+                    >
+                      {g === '男' ? '乾造 (男)' : '坤造 (女)'}
+                    </button>
+                  ))}
+                </div>
               </div>
 
               <div className="space-y-4">
@@ -318,6 +356,36 @@ function ResultView({ result, reset }: { result: BaZiResult, reset: () => void }
       animate="visible"
       className="max-w-4xl w-full py-12 px-4 space-y-16 pb-32 relative"
     >
+      {/* Immediate Paywall Hook for high visibility - AT THE TOP */}
+      {!isPaid && (
+        <motion.div 
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-gold/10 border border-gold/30 rounded-[2.5rem] p-8 text-center space-y-6 shadow-2xl shadow-gold/10 relative overflow-hidden"
+        >
+          <div className="absolute top-0 right-0 w-32 h-32 bg-gold/5 rounded-full blur-3xl -mr-16 -mt-16" />
+          <div className="space-y-2 relative z-10">
+             <div className="flex items-center justify-center gap-3">
+               <Lock className="w-5 h-5 text-gold animate-pulse" />
+               <h3 className="text-xl font-serif italic text-ink">2026 深度气场报告已生成</h3>
+             </div>
+             <p className="text-xs text-ink/50 leading-relaxed max-w-sm mx-auto">您的初始人设已就绪，但 2026 避坑指南与进阶副本数据需要同步 9.9 能量券即可解锁。</p>
+          </div>
+          <button 
+            onClick={() => setShowPayModal(true)}
+            className="w-full max-w-xs mx-auto py-5 bg-ink text-gold rounded-full text-xs font-black uppercase tracking-[0.3em] hover:bg-gold hover:text-ink transition-all active:scale-105 shadow-xl shadow-gold/20 flex items-center justify-center gap-3 group"
+          >
+            <Sparkles className="w-4 h-4 group-hover:rotate-12 transition-transform" />
+            <span>解锁完整进阶报告</span>
+          </button>
+          <div className="flex items-center justify-center gap-4 opacity-20">
+            <div className="h-px flex-1 bg-ink" />
+            <p className="text-[8px] font-mono whitespace-nowrap">TRUSTED BY 12,482 EXPERIMENTAL SUBJECTS</p>
+            <div className="h-px flex-1 bg-ink" />
+          </div>
+        </motion.div>
+      )}
+
       {/* Main Social Identity Card */}
       <motion.div
         variants={itemVariants}
@@ -375,6 +443,7 @@ function ResultView({ result, reset }: { result: BaZiResult, reset: () => void }
         </div>
       </motion.div>
 
+
       {/* Grid Sections with Paywall */}
       <div className="relative">
         <div className={cn("space-y-24 transition-all duration-1000", !isPaid && "filter blur-md pointer-events-none select-none opacity-40 brightness-95")}>
@@ -390,22 +459,25 @@ function ResultView({ result, reset }: { result: BaZiResult, reset: () => void }
                 <motion.div 
                   key={idx}
                   variants={itemVariants}
-                  className="bg-white p-8 rounded-[2rem] border border-ink/5 space-y-6 hover:shadow-2xl hover:shadow-gold/5 transition-all flex flex-col items-center text-center group"
+                  className="bg-white p-6 rounded-[2rem] border border-ink/5 space-y-6 hover:shadow-2xl hover:shadow-gold/5 transition-all flex flex-col items-center text-center group"
                 >
                   <div className="flex justify-between items-center w-full">
                     <span className="text-[9px] font-black opacity-20 uppercase tracking-[0.2em]">{item.pillar}</span>
                     <div className="h-1.5 w-1.5 rounded-full bg-gold/40 shadow-sm shadow-gold" />
                   </div>
-                  <div className="space-y-2">
-                    <div className="text-5xl font-serif flex items-baseline justify-center gap-1 group-hover:scale-110 transition-transform duration-500">
-                      <span className="text-ink">{item.stem}</span>
-                      <span className="text-ink/20 text-3xl font-light">{item.branch}</span>
+                  
+                  <div className="w-full grid grid-cols-2 gap-2">
+                    <div className="space-y-2 p-3 bg-paper rounded-2xl border border-ink/5 group-hover:border-gold/30 transition-colors">
+                       <p className="text-3xl font-serif text-ink leading-none">{item.stem}</p>
+                       <span className="inline-block px-1.5 py-0.5 bg-gold/10 text-gold text-[8px] font-black uppercase tracking-wider rounded">{item.stemShishen}</span>
                     </div>
-                    <div className="inline-block px-3 py-1 bg-paper rounded-full border border-gold/10">
-                      <span className="text-[10px] text-gold font-black uppercase tracking-wider">{item.shishen}</span>
+                    <div className="space-y-2 p-3 bg-paper/50 rounded-2xl border border-ink/5 group-hover:border-gold/20 transition-colors">
+                       <p className="text-3xl font-serif text-ink/40 leading-none">{item.branch}</p>
+                       <span className="inline-block px-1.5 py-0.5 bg-ink/5 text-ink/40 text-[8px] font-black uppercase tracking-wider rounded">{item.branchShishen}</span>
                     </div>
                   </div>
-                  <p className="text-xs text-ink/60 leading-relaxed font-serif italic pt-4 border-t border-ink/5 mt-auto">
+
+                  <p className="text-[10px] text-ink/60 leading-relaxed font-serif italic pt-4 border-t border-ink/5 mt-auto">
                     {item.meaning}
                   </p>
                 </motion.div>
@@ -660,15 +732,20 @@ function ResultView({ result, reset }: { result: BaZiResult, reset: () => void }
                   
                   <div className="relative group">
                     <div className="absolute -inset-4 bg-[#07C160]/5 rounded-[3rem] blur-xl opacity-0 group-hover:opacity-100 transition duration-700"></div>
-                    <div className="relative aspect-square max-w-[200px] mx-auto bg-white rounded-[2.5rem] border-2 border-[#07C160]/10 flex items-center justify-center p-6 shadow-sm overflow-hidden">
-                       <svg viewBox="0 0 100 100" className="w-full h-full text-ink fill-current">
-                         <path d="M0 0h30v30H0zM10 10h10v10H10zM70 0h30v30H70zM80 10h10v10H80zM0 70h30v30H0zM10 80h10v10H10z" />
-                         <path d="M40 0h10v10H40zM60 0h10v10H60zM40 20h20v10H40zM20 40h10v10H20zM40 40h10v10H40zM60 40h10v10H60zM80 40h20v10H80zM0 60h20v10H0zM40 60h20v10H40zM70 60h10v10H70zM90 60h10v10H90zM40 80h10v10H40zM60 80h10v10H60zM80 80h10v10H80zM50 50h10v10H50zM30 10h10v10H30zM50 30h10v10H50zM70 40h10v10H70zM10 50h10v10H10zM90 20h10v10H90zM20 90h10v10H20zM40 90h10v10H40zM70 90h10v10H70z" />
-                       </svg>
-                       <div className="absolute inset-0 flex items-center justify-center">
-                          <div className="bg-white p-1.5 rounded-xl shadow-lg border border-ink/5">
-                            <div className="w-8 h-8 bg-[#07C160] rounded-lg flex items-center justify-center">
-                              <img src="https://upload.wikimedia.org/wikipedia/commons/7/73/WeChat_logo.svg" className="w-5 h-5 brightness-0 invert" alt="WeChat" />
+                    <div className="relative aspect-square max-w-[200px] mx-auto bg-white rounded-[2.5rem] border-2 border-[#07C160]/10 flex items-center justify-center p-2 shadow-sm overflow-hidden">
+                       <img 
+                         src="/IMG_3368.JPG" 
+                         alt="WeChat Pay QR Code" 
+                         className="w-full h-full object-contain"
+                         onError={(e) => {
+                           // Fallback if image not found in root
+                           e.currentTarget.src = "https://placehold.co/400x400?text=Please+Upload+IMG_3368.JPG";
+                         }}
+                       />
+                       <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                          <div className="bg-white p-1 rounded-xl shadow-lg border border-ink/5 opacity-50">
+                            <div className="w-6 h-6 bg-[#07C160] rounded-lg flex items-center justify-center">
+                              <img src="https://upload.wikimedia.org/wikipedia/commons/7/73/WeChat_logo.svg" className="w-4 h-4 brightness-0 invert" alt="WeChat" />
                             </div>
                           </div>
                        </div>
