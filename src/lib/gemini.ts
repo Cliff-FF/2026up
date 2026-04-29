@@ -127,19 +127,19 @@ const VIBE_LABELS = [
 ];
 
 const PREDICTIONS = [
-  "你的气场中带着一种‘我不卷，但谁也别想卷我’的韧性。2026年是你的觉醒年。",
-  "你习惯在混乱中寻找秩序，外冷内热。未来的周期里，你的直觉将成为最强的Buff。",
-  "天生的策略家，你的脑回路通常比别人快两个版本。2026年适合开启‘财富加速’模式。",
-  "拥有极强的共情能力，但容易被外界噪音干扰。今年你需要学会‘关机’和‘重启’。",
-  "你的生命力来自于破坏与重建，不破不立。未来的地图里，变换赛道会有奇效。"
+  "你的气场中带着一种‘我不卷，但谁也别想卷我’的硬核韧性。这不仅是性格使然，更是你八字中日主自坐强根的防御机制。在2026年丙午流年的纯火冲炼下，你那种深藏不露、伺机而动的意志力将被彻底激活，这是一种‘不破不立’的高能觉醒。不要畏惧当下的混沌，你其实更擅长在秩序重建的过程中，寻找那个最精确的权力切入点，并完成赛道的绝对反杀。",
+  "你习惯在混乱中寻找深层秩序，这种外冷内热的特质源于你对环境能量分布的极度敏感。未来的周期里，由于流年月日时四柱的深度咬合，你的直觉将从辅助工具升级为生存核心Buff。2026年的极旺火气，正在试图蒸发掉你性格中多余的焦虑，转而凝练出更纯粹的执行力。此时你需要做的不是盲目奔跑，而是学会信任那些突如其来的‘直觉灵光’，那是你的元神在混乱中给出的最优解。",
+  "作为天生的策略家，你的脑回路通常比周围人快出两个版本，这源于你八字中食伤与财星的精妙平衡。2026年丙午年，天干丙火红艳透出，预示着你之前的长期积累将迎来爆发式的‘财富加速’窗口。这种财富不仅仅是账面数字，更是社会关系的重组与个人影响力的跨维度提升。在当下的复杂环境中，你那种‘降维打击’的商业逻辑将成为你最硬核的逆风翻盘通行证。",
+  "你拥有极强的共情能力与情感捕获力，这使你八字中的‘印星’磁场异常显著。然而，由于你的能量场过于通透，也极易被外界嘈杂的低频噪音干扰，导致精神内耗严重。在2026这个转折点上，你最需要掌握的技能不是‘链接’，而是‘断联’。学会通过专注某一领域的深度探索来实现自我的‘系统重启’。在丙火的热力照耀下，你的每一次退守，本质上都是在为接下来的高能爆发积蓄能量。",
+  "你的生命力来自于‘破坏与重建’的无限循环，这种不羁的灵魂底色让你在任何时代都具有极高的辨识度。在2026年，当大环境开始进行深层洗牌时，你那‘不走寻常路’的天性将正式从异类转变为先锋。不要留恋旧时代的旧逻辑，勇于尝试变换赛道，甚至去打破你自己亲手建立的舒适区。丙午流年的火之文明正在快速迭代，这实际上是在呼唤像你这样敢于进行自我重塑、具备极强环境抗性的孤勇者。"
 ];
 
 const STRATEGIES = [
-  { tag: "低位潜伏", advice: "拒绝一切无效社交，在安静处打磨你的核心武器。" },
-  { tag: "疯狂输出", advice: "这是你的主场，不要害羞，把你的所有创意都怼到老板脸上。" },
-  { tag: "跨界套利", advice: "尝试你从未接触过的领域，哪怕是去摆摊卖红薯也会有惊喜。" },
-  { tag: "防御性理财", advice: "现金为王，不要被那些听起来很高级的所谓‘赛道’忽悠。" },
-  { tag: "身心灵重塑", advice: "放下手机，去爬山，去呼吸，去感受那些真实存在的东西。" }
+  { tag: "低位潜伏", advice: "拒绝一切低效的无效社交，在深水区安静地打磨你的核心生存武器。沉默是本阶段你最强大的能量伪装，待丙午之火烧过，便是你破壳而出的时刻。" },
+  { tag: "疯狂输出", advice: "当下的能量场正为你提供源源不断的燃料，这是你的主场。不要害羞，把你的所有创意和方案都大胆地推向前台，你的高频振动将吸引到最精准的贵人助力。" },
+  { tag: "跨界套利", advice: "尝试你从未接触过的陌生领域，哪怕是利用业余时间去探索某个看似不相关的硬核赛道，也会产生奇妙的化学反应。2026年的机遇往往藏在那些被他人忽视的垂直裂缝中。" },
+  { tag: "防御性理财", advice: "现金流的确定性高于一切收益蓝图。不要被那些听起来宏大而虚幻的赛道忽悠，聚焦于那些可触达、低杠杆、高流转的本地化项目。在这一轮周期里，守成即是进攻。" },
+  { tag: "身心灵重塑", advice: "放下那些让你焦虑的数字信息，去高山，去旷野，去呼吸那些能过滤空气中浮躁气息的新鲜氧气。你当前的能量损耗主要源于与物理世界的断联，回归本原才能重获掌控感。" }
 ];
 
 export async function analysisPersonality(
@@ -226,9 +226,79 @@ export async function analysisPersonality(
     meaning
   });
 
+  // 6. 2026 丙午年 12个月流月能量精准校准
+  const MONTH_DATES_2026 = [
+    { name: "庚寅", range: "02.04 - 03.04", stem: "庚" },
+    { name: "辛卯", range: "03.05 - 04.03", stem: "辛" },
+    { name: "壬辰", range: "04.04 - 05.04", stem: "壬" },
+    { name: "癸巳", range: "05.05 - 06.04", stem: "癸" },
+    { name: "甲午", range: "06.05 - 07.06", stem: "甲" },
+    { name: "乙未", range: "07.07 - 08.06", stem: "乙" },
+    { name: "丙申", range: "08.07 - 09.06", stem: "丙" },
+    { name: "丁酉", range: "09.07 - 10.07", stem: "丁" },
+    { name: "戊戌", range: "10.08 - 11.06", stem: "戊" },
+    { name: "己亥", range: "11.07 - 12.06", stem: "己" },
+    { name: "庚子", range: "12.07 - 01.04", stem: "庚" },
+    { name: "辛丑", range: "01.05 - 02.03", stem: "辛" }
+  ];
+
+  const getShishenMeaning = (shishen: string) => {
+    const vibes: Record<string, string> = {
+      "正财": "经济稳健，利于务实开拓。",
+      "偏财": "财气横溢，适合捕捉先机。",
+      "正官": "贵人相助，事业平稳上升。",
+      "七杀": "变动中求生，谨言慎行。",
+      "比肩": "人脉聚合，利于团队协作。",
+      "劫财": "注意消耗，适度收敛锋芒。",
+      "食神": "才华横溢，享受生活点滴。",
+      "伤官": "创新活跃，警惕口舌是非。",
+      "正印": "得道多助，利于学习深造。",
+      "偏印": "思维独到，适合深度反思。"
+    };
+    return vibes[shishen] || "平稳运行。";
+  };
+
+  const getElement = (stem: string) => {
+    const idx = STEMS.indexOf(stem);
+    return ELEMENTS[idx] || "未知";
+  };
+
+  const getMonthlyDirection = (shishen: string) => {
+    const directions: Record<string, string> = {
+      "正财": "踏实搞钱",
+      "偏财": "横财就手",
+      "正官": "事业开挂",
+      "七杀": "硬核突围",
+      "比肩": "组队快跑",
+      "劫财": "守好荷包",
+      "食神": "开心干饭",
+      "伤官": "脑洞大开",
+      "正印": "原地回血",
+      "偏印": "古灵精怪"
+    };
+    return directions[shishen] || "顺势顺心";
+  };
+
+  const getMonthlyVibe = (shishen: string, stem: string) => {
+    const isHarmonious = STEMS.indexOf(stem) % 2 === STEMS.indexOf(dayStem) % 2;
+    const vibes: Record<string, string> = {
+      "正财": isHarmonious ? "钱袋鼓鼓" : "辛苦搬砖",
+      "偏财": isHarmonious ? "好运敲门" : "理智消费",
+      "正官": isHarmonious ? "贵人罩你" : "按部就班",
+      "七杀": isHarmonious ? "逆风翻盘" : "低调避风",
+      "比肩": isHarmonious ? "朋友多多" : "竞争博弈",
+      "劫财": isHarmonious ? "大方分享" : "别瞎剁手",
+      "食神": isHarmonious ? "吃嘛嘛香" : "宅家回电",
+      "伤官": isHarmonious ? "才华横溢" : "谨言慎行",
+      "正印": isHarmonious ? "被宠坏了" : "学习进步",
+      "偏印": isHarmonious ? "神机妙算" : "少想多做"
+    };
+    return vibes[shishen] || "心情明媚";
+  };
+
   return {
     vibeLabel: VIBE_LABELS[seed % VIBE_LABELS.length],
-    prediction: `${genderMod}。这份基于 ${city} (${solarTime.h}:${solarTime.m.toString().padStart(2, '0')} 真太阳时) 的能量解析显示：${PREDICTIONS[seed % PREDICTIONS.length]}`,
+    prediction: `${genderMod}。这份基于 ${city} (${solarTime.h}:${solarTime.m.toString().padStart(2, '0')} 真太阳时) 的深度解析：${PREDICTIONS[seed % PREDICTIONS.length]} 在丙午年的火木相生格局下，你的日主 ${dayStem} 将面临一次前所未有的磁场重塑。这不仅是运势的波动，更是你个人底层逻辑的数字化升级。请聚焦于当前的 ${STRATEGIES[seed % STRATEGIES.length].tag}，这将是你未来三年的核心资产点。`,
     dayMaster: `${dayStem}属${dayBranch}之命 (日元)`,
     eightCharacters: [
       createPillar("年柱", yearPillar, "代表先天根基与家族潜能。"),
@@ -236,15 +306,18 @@ export async function analysisPersonality(
       createPillar("日柱", dayPillar, "核心人设，你灵魂最底层的色调。"),
       createPillar("时柱", hourPillar, "代表未来输出与最终的成就归宿。")
     ],
-    monthlyEnergy: Array.from({ length: 12 }, (_, i) => ({
-      month: `${i + 1}月`,
-      dateRange: `2026.${(i+1).toString().padStart(2, '0')}.01 - 2026.${(i+1).toString().padStart(2, '0')}.30`,
-      element: ELEMENTS[i % 10],
-      shishen: shishenData[STEMS[i % 10]] || "偏官",
-      shishenMeaning: i % 3 === 0 ? "这是你的能量爆发期" : "建议进入省电模式",
-      direction: i % 4 === 0 ? "疯狂搞钱" : i % 4 === 1 ? "低调摸鱼" : i % 4 === 2 ? "拒绝内耗" : "直接开摆",
-      vibe: i % 2 === 0 ? "环境高度兼容" : "可能有Bug，建议避坑"
-    })),
+    monthlyEnergy: MONTH_DATES_2026.map((m) => {
+      const mShishen = shishenData[m.stem] || "气场";
+      return {
+        month: m.name,
+        dateRange: `2026 ${m.range}`,
+        element: getElement(m.stem),
+        shishen: mShishen,
+        shishenMeaning: getShishenMeaning(mShishen),
+        direction: getMonthlyDirection(mShishen),
+        vibe: getMonthlyVibe(mShishen, m.stem)
+      };
+    }),
     yearlyStrategy: {
       domesticCities: [
         { name: "成都", score: "96", reason: "慢节奏磁场，修复精神内耗。" },
@@ -261,4 +334,5 @@ export async function analysisPersonality(
     tags: ["硬核", gender === "女" ? "内秀" : "勇武", "人间清醒"].concat(seed % 3 === 0 ? ["潜力股"] : ["高能"])
   };
 }
+
 
