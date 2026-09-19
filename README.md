@@ -9,9 +9,15 @@ Node.js 24+。`npm ci` 后复制 `.env.example` 为 `.env.local`，填写与 FFC
 - `npm run dev`：Vite + 本地会员验证 API。
 - `npm run lint`：TypeScript 检查。
 - `npm test`：会员验证与详情访问边界测试。
-- `npm run build && npm start`：生产构建与 Node 服务；可设置 `PORT`。
+- `npm run build && npm start`：本地生产构建与 Node 服务；可设置 `PORT`。
 
-必须运行 Node 服务（或将 `/api/month-detail` 部署为等效服务端路由），不能仅发布 dist 或使用 vite preview。生产运行时也必须配置 Supabase 环境变量。月度付费文案只存在于服务端文件中，不进入浏览器包。
+Vercel 部署直接使用 `vercel.json` 与 `api/month-detail.mjs`，不需要运行 `npm start`。不能仅发布 dist 或使用 vite preview，因为月度详情需要 `/api/month-detail` 服务端验证。生产运行时也必须配置 Supabase 环境变量。月度付费文案只存在于服务端文件中，不进入浏览器包。
+
+## Vercel 部署
+
+在 Vercel 导入 GitHub 仓库：如果导入的是整个 workspace，将 Root Directory 设置为 `apps/shunyue`；如果导入的是顺月独立仓库，保持默认。Build Command 为 `npm run build`，Output Directory 为 `dist`，Install Command 为 `npm ci`。
+
+在 Project Settings → Environment Variables 中为 Production、Preview、Development 配置 `VITE_SUPABASE_URL`、`VITE_SUPABASE_ANON_KEY` 与 `VITE_FFCLIFF_PRO_URL`，然后重新 Deploy。不要配置 Supabase service-role key。
 
 ## 结果与会员流程
 

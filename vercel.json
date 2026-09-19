@@ -1,0 +1,10 @@
+{
+  "framework": "vite",
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "functions": {
+    "api/month-detail.mjs": {
+      "maxDuration": 15
+    }
+  }
+}
