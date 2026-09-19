@@ -13,6 +13,7 @@ export async function savePoster(result: BaZiResult) {
     const x = 72 + i % 3 * 360; const y = 310 + Math.floor(i / 3) * 255;
     ctx.fillStyle = colors[Math.floor(i / 3)]; ctx.beginPath(); ctx.roundRect(x, y, 336, 230, 15); ctx.fill();
     text(`${String(m.monthNumber).padStart(2, '0')} 月`, x + 25, y + 44, 25);
+    text(m.shishen, x + 247, y + 44, 23, '#647166');
     text(m.direction, x + 25, y + 122, 47, '#263f34', 700);
     text(m.vibe, x + 25, y + 180, 26, '#647166');
   });

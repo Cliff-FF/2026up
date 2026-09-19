@@ -15,7 +15,7 @@ export async function login(email: string, password: string) {
   if (!response.ok) throw new Error('登录失败，请检查邮箱、密码与邮箱验证状态。');
   localStorage.setItem(sessionKey, JSON.stringify({ access_token: data.access_token, user: data.user }));
 }
-export type MonthDetail = { intro: string; actions: string[]; avoid: string; question: string };
+export type MonthDetail = { intro: string; meaning: string; focus: string; actions: string[]; avoid: string; question: string };
 export async function loadDetail(shishen: string): Promise<MonthDetail> {
   const token = getToken();
   if (!token) throw new Error('请用 FFCLIFF Pro 的同一账户登录，验证会员资格。');

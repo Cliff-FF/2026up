@@ -9,8 +9,9 @@ import { Sparkles, Calendar, ChevronRight, ArrowRight, Quote } from 'lucide-reac
 import { cn } from './lib/utils';
 import { ResultView } from './components/ResultView';
 import { analysisPersonality, type BaZiResult } from './lib/gemini';
+import { TRAVEL_QUESTIONS } from './lib/cities';
 
-const reportKey = 'shunyue-report-v2';
+const reportKey = 'shunyue-report-v3';
 function restoreReport(): BaZiResult | null {
   try { const report = JSON.parse(sessionStorage.getItem(reportKey) || 'null'); return report?.monthlyEnergy?.length === 12 && report.monthlyEnergy.every((m: { monthNumber: number }) => m.monthNumber >= 1 && m.monthNumber <= 12) ? report : null; } catch { return null; }
 }
@@ -32,6 +33,10 @@ export default function App() {
 
   const handleBirthSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    const form = e.currentTarget as HTMLFormElement;
+    if (!form.reportValidity()) return;
+    const fields = new FormData(form);
+    setBirthData(previous => ({ ...previous, date: String(fields.get('date')), time: String(fields.get('time')), city: String(fields.get('city')).trim() }));
     setStep('quiz');
   };
 
@@ -116,6 +121,7 @@ export default function App() {
                   <input
                     required
                     type="date"
+                    name="date"
                     value={birthData.date}
                     onChange={e => setBirthData({ ...birthData, date: e.target.value })}
                     className="w-full bg-white border border-ink/5 rounded-2xl py-4 pl-12 pr-4 focus:outline-none focus:ring-2 focus:ring-gold/20 transition-all font-mono"
@@ -129,6 +135,7 @@ export default function App() {
                   <input
                     required
                     type="time"
+                    name="time"
                     value={birthData.time}
                     onChange={e => setBirthData({ ...birthData, time: e.target.value })}
                     className="w-full bg-white border border-ink/5 rounded-2xl py-4 px-6 focus:outline-none focus:ring-2 focus:ring-gold/20 transition-all font-mono text-center text-2xl"
@@ -139,6 +146,7 @@ export default function App() {
                   <input
                     required
                     type="text"
+                    name="city"
                     placeholder="如：北京"
                     value={birthData.city}
                     onChange={e => setBirthData({ ...birthData, city: e.target.value })}
@@ -281,7 +289,8 @@ function QuizStep({ onComplete }: { onComplete: (answers: { q: string; a: string
       q: "当深夜独自观测星空，你的第一感触是？",
       options: ["渺小个体的数学概率", "万物互联的量子织网", "单纯觉得星星挺好看"],
       type: "倾向"
-    }
+    },
+    ...TRAVEL_QUESTIONS
   ];
 
   const handleSelect = (a: string) => {

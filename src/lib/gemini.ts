@@ -1,3 +1,6 @@
+import { describePersonality, yearFocus, type Personality } from './personality.ts';
+import { travelPreference, type TravelPreference } from './cities.ts';
+
 export interface BaZiCharacter {
   pillar: string;
   stem: string;
@@ -9,7 +12,8 @@ export interface BaZiCharacter {
 
 export interface BaZiResult {
   vibeLabel: string;
-  prediction: string;
+  personality: Personality;
+  travelPreference: TravelPreference;
   dayMaster: string;
   eightCharacters: BaZiCharacter[];
   monthlyEnergy: {
@@ -23,12 +27,10 @@ export interface BaZiResult {
     vibe: string;
   }[];
   yearlyStrategy: {
-    domesticCities: { name: string; score: string; reason: string }[];
-    intlCities: { name: string; score: string; reason: string }[];
+    shishen: string;
     directionTag: string;
     coreAdvice: string;
   };
-  score: number;
   tags: string[];
 }
 
@@ -121,27 +123,6 @@ const SHISHEN_MAP: Record<string, Record<string, string>> = {
   "癸": { "癸": "比肩", "壬": "劫财", "乙": "食神", "甲": "伤官", "丁": "偏财", "丙": "正财", "己": "七杀", "戊": "正官", "辛": "偏印", "庚": "正印" },
 };
 
-const VIBE_LABELS = [
-  "脆皮打工人", "高能小陀螺", "深海哲学家", "发疯型天才", "赛博佛系少年", 
-  "人间清醒剂", "低耗能摸鱼家", "硬核浪漫型", "高频社交达人", "孤勇执行者",
-  "进击的斜杠青年", "隐形显眼包", "精神股东", "恋爱脑绝缘体", "情绪过山车"
-];
-
-const PREDICTIONS = [
-  "你的气场中带着一种‘我不卷，但谁也别想卷我’的硬核韧性。这不仅是性格使然，更是你八字中日主自坐强根的防御机制。在2026年丙午流年的纯火冲炼下，你那种深藏不露、伺机而动的意志力将被彻底激活，这是一种‘不破不立’的高能觉醒。不要畏惧当下的混沌，你其实更擅长在秩序重建的过程中，寻找那个最精确的权力切入点，并完成赛道的绝对反杀。",
-  "你习惯在混乱中寻找深层秩序，这种外冷内热的特质源于你对环境能量分布的极度敏感。未来的周期里，由于流年月日时四柱的深度咬合，你的直觉将从辅助工具升级为生存核心Buff。2026年的极旺火气，正在试图蒸发掉你性格中多余的焦虑，转而凝练出更纯粹的执行力。此时你需要做的不是盲目奔跑，而是学会信任那些突如其来的‘直觉灵光’，那是你的元神在混乱中给出的最优解。",
-  "作为天生的策略家，你的脑回路通常比周围人快出两个版本，这源于你八字中食伤与财星的精妙平衡。2026年丙午年，天干丙火红艳透出，预示着你之前的长期积累将迎来爆发式的‘财富加速’窗口。这种财富不仅仅是账面数字，更是社会关系的重组与个人影响力的跨维度提升。在当下的复杂环境中，你那种‘降维打击’的商业逻辑将成为你最硬核的逆风翻盘通行证。",
-  "你拥有极强的共情能力与情感捕获力，这使你八字中的‘印星’磁场异常显著。然而，由于你的能量场过于通透，也极易被外界嘈杂的低频噪音干扰，导致精神内耗严重。在2026这个转折点上，你最需要掌握的技能不是‘链接’，而是‘断联’。学会通过专注某一领域的深度探索来实现自我的‘系统重启’。在丙火的热力照耀下，你的每一次退守，本质上都是在为接下来的高能爆发积蓄能量。",
-  "你的生命力来自于‘破坏与重建’的无限循环，这种不羁的灵魂底色让你在任何时代都具有极高的辨识度。在2026年，当大环境开始进行深层洗牌时，你那‘不走寻常路’的天性将正式从异类转变为先锋。不要留恋旧时代的旧逻辑，勇于尝试变换赛道，甚至去打破你自己亲手建立的舒适区。丙午流年的火之文明正在快速迭代，这实际上是在呼唤像你这样敢于进行自我重塑、具备极强环境抗性的孤勇者。"
-];
-
-const STRATEGIES = [
-  { tag: "低位潜伏", advice: "拒绝一切低效的无效社交，在深水区安静地打磨你的核心生存武器。沉默是本阶段你最强大的能量伪装，待丙午之火烧过，便是你破壳而出的时刻。" },
-  { tag: "疯狂输出", advice: "当下的能量场正为你提供源源不断的燃料，这是你的主场。不要害羞，把你的所有创意和方案都大胆地推向前台，你的高频振动将吸引到最精准的贵人助力。" },
-  { tag: "跨界套利", advice: "尝试你从未接触过的陌生领域，哪怕是利用业余时间去探索某个看似不相关的硬核赛道，也会产生奇妙的化学反应。2026年的机遇往往藏在那些被他人忽视的垂直裂缝中。" },
-  { tag: "防御性理财", advice: "现金流的确定性高于一切收益蓝图。不要被那些听起来宏大而虚幻的赛道忽悠，聚焦于那些可触达、低杠杆、高流转的本地化项目。在这一轮周期里，守成即是进攻。" },
-  { tag: "身心灵重塑", advice: "放下那些让你焦虑的数字信息，去高山，去旷野，去呼吸那些能过滤空气中浮躁气息的新鲜氧气。你当前的能量损耗主要源于与物理世界的断联，回归本原才能重获掌控感。" }
-];
 
 export async function analysisPersonality(
   birthDate: string,
@@ -182,7 +163,6 @@ export async function analysisPersonality(
   const dayGZIndex = (Math.floor(jd + 0.5) + 49) % 60;
   const dayPillar = SIXTY_GANZHI[dayGZIndex < 0 ? dayGZIndex + 60 : dayGZIndex];
   const dayStem = dayPillar[0];
-  const dayBranch = dayPillar[1];
   const dayStemIndex = STEMS.indexOf(dayStem);
 
   // 4. 月柱 校准 (核心逻辑：精准定位月令偏移)
@@ -202,17 +182,10 @@ export async function analysisPersonality(
   const hStemIndex = ((dayStemIndex % 5) * 2 + hBranchIndex) % 10;
   const hourPillar = STEMS[hStemIndex < 0 ? hStemIndex + 10 : hStemIndex] + BRANCHES[hBranchIndex];
 
-  // 综合种子因子
-  const cityCode = city.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-  const seed = Math.floor(jd) + hBranchIndex + cityCode;
-
-  // 性格权重计算
-  const scoreBase = 84;
-  const finalScore = Math.min(99, scoreBase + (seed % 10) + quizAnswers.length);
-
   const shishenData = SHISHEN_MAP[dayStem] || SHISHEN_MAP["甲"];
-  
-  const genderMod = gender === "女" ? "坤造·内敛温润" : "乾造·刚毅果敢";
+  const personality = describePersonality(quizAnswers);
+  const annualShishen = shishenData['丙'];
+  const focus = yearFocus(annualShishen);
 
   const getShishen = (character: string) => {
     return shishenData[character] || (BRANCH_PRIMARY_STEM[character] ? shishenData[BRANCH_PRIMARY_STEM[character]] : "空");
@@ -298,14 +271,15 @@ export async function analysisPersonality(
   };
 
   return {
-    vibeLabel: VIBE_LABELS[seed % VIBE_LABELS.length],
-    prediction: `${genderMod}。这份基于 ${city} (${solarTime.h}:${solarTime.m.toString().padStart(2, '0')} 真太阳时) 的深度解析：${PREDICTIONS[seed % PREDICTIONS.length]} 在丙午年的火木相生格局下，你的日主 ${dayStem} 将面临一次前所未有的磁场重塑。这不仅是运势的波动，更是你个人底层逻辑的数字化升级。请聚焦于当前的 ${STRATEGIES[seed % STRATEGIES.length].tag}，这将是你未来三年的核心资产点。`,
-    dayMaster: `${dayStem}属${dayBranch}之命 (日元)`,
+    vibeLabel: personality.tags.slice(0, 2).join(' · '),
+    personality,
+    travelPreference: travelPreference(quizAnswers),
+    dayMaster: `日主 ${dayStem} · 五行属${ELEMENTS[dayStemIndex]}`,
     eightCharacters: [
-      createPillar("年柱", yearPillar, "代表先天根基与家族潜能。"),
-      createPillar("月柱", monthPillar, "主导事业格局与当下的社会能量。"),
-      createPillar("日柱", dayPillar, "核心人设，你灵魂最底层的色调。"),
-      createPillar("时柱", hourPillar, "代表未来输出与最终的成就归宿。")
+      createPillar("年柱", yearPillar, "传统解读：家庭与早年环境。"),
+      createPillar("月柱", monthPillar, "传统解读：工作与社会角色。"),
+      createPillar("日柱", dayPillar, "传统解读：自己与亲密关系。"),
+      createPillar("时柱", hourPillar, "传统解读：长远打算与晚年。")
     ],
     monthlyEnergy: MONTH_DATES_2026.map((m, index) => {
       const mShishen = shishenData[m.stem] || "气场";
@@ -321,20 +295,10 @@ export async function analysisPersonality(
       };
     }),
     yearlyStrategy: {
-      domesticCities: [
-        { name: "成都", score: "96", reason: "慢节奏磁场，修复精神内耗。" },
-        { name: "上海", score: "91", reason: "高频共振，适合开启新项目。" }
-      ],
-      intlCities: [
-        { name: "京都", score: "94", reason: "木气充足，深度清理缓存。" },
-        { name: "冰岛", score: "89", reason: "强力脱敏，重塑意志力。" }
-      ],
-      directionTag: STRATEGIES[seed % STRATEGIES.length].tag,
-      coreAdvice: STRATEGIES[seed % STRATEGIES.length].advice
+      shishen: annualShishen,
+      directionTag: focus.tag,
+      coreAdvice: focus.advice
     },
-    score: finalScore,
-    tags: ["硬核", gender === "女" ? "内秀" : "勇武", "人间清醒"].concat(seed % 3 === 0 ? ["潜力股"] : ["高能"])
+    tags: personality.tags
   };
 }
-
-

@@ -3,7 +3,7 @@
 
 @theme {
   --font-serif: "Cormorant Garamond", serif;
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Inter", "PingFang SC", "Microsoft YaHei", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", monospace;
 
   --color-gold: #D4AF37;
@@ -64,6 +64,8 @@
 .month-top svg { opacity: .55; }
 .month-tile > strong { display: block; font-size: clamp(22px,2.6vw,29px); letter-spacing: -.05em; margin: 12px 0 7px; font-weight: 650; }
 .month-hint { font-size: 11px; color: #647166; }
+.month-top .shishen-label { font-size: 11px; font-weight: 650; color: #3b533e; background: #ffffff65; border-radius: 4px; padding: 3px 7px; }
+.month-hint { display: flex; align-items: center; justify-content: space-between; gap: 4px; }
 .tone-0 { background: #e1e8d9; }.tone-1 { background: #eee3cb; }.tone-2 { background: #e8e2d8; }.tone-3 { background: #dce6e1; }
 .poster-bottom { display: flex; justify-content: space-between; gap: 12px; margin-top: 22px; font-size: 10px; color: #71806c; letter-spacing: .04em; }
 .share-row { display: flex; justify-content: space-between; align-items: center; gap: 15px; padding-top: 18px; }
@@ -106,3 +108,46 @@ button, a { -webkit-tap-highlight-color: transparent; }button { cursor: pointer;
   .result-page { padding-top: 0; }.result-nav { padding: 4px 2px 17px; }.brand-en { display: none; }.annual-poster { padding: 22px 15px 16px; border-radius: 17px; }.poster-heading h1 { font-size: 30px; }.mobile-break { display: block; }.poster-heading { gap: 8px; }.poster-subtitle { font-size: 10px; max-width: 235px; line-height: 1.8; }.year-stamp { font-size: 35px; padding-top: 6px; }.year-stamp span { display: none; }.eyebrow { font-size: 9px; }.poster-persona { gap: 8px; margin: 17px 0 13px; padding-top: 13px; font-size: 9px; }.poster-persona strong { font-size: 11px; }.persona-tags { display: none; }.month-grid { grid-template-columns: repeat(3,minmax(0,1fr)); gap: 7px; }.month-tile { padding: 11px 10px 13px; border-radius: 8px; }.month-top { font-size: 9px; }.month-top b { font-size: 13px; }.month-top svg { width: 12px; }.month-tile > strong { font-size: clamp(18px,5vw,25px); letter-spacing: -.065em; margin: 9px 0 5px; white-space: nowrap; }.month-hint { font-size: 9px; }.poster-bottom { font-size: 8px; margin-top: 16px; gap: 5px; letter-spacing: 0; }.share-row { flex-direction: column; gap: 12px; padding-top: 14px; }.share-row p { font-size: 10px; }.share-row .secondary-button { width: 100%; }.share-message { text-align: center; }.reading-section { padding-top: 29px; }.section-heading { align-items: start; flex-direction: column; gap: 8px; margin-bottom: 17px; }.section-heading h2 { font-size: 22px; }.day-master { font-size: 11px; }.birth-table th:first-child { width: 37px; }.birth-table th, .birth-table td { padding: 12px 5px; }.birth-table th { font-size: 10px; }.characters td { font-size: 25px; }.characters small { font-size: 10px; }.meanings td { font-size: 10px; line-height: 1.8; }.interpretation-grid { grid-template-columns: 1fr; gap: 23px; }.interpretation-grid p { font-size: 13px; }.interpretation-grid aside { padding: 23px; }.city-grid { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px 22px; }.dialog-content { padding: 28px 22px; }.dialog-content > h2 { font-size: 30px; }.pro-offer h3 { font-size: 20px; }
 }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
+
+/* Plain-language reading: a conclusion first, then short supporting paragraphs. */
+.section-intro { color: #63715f; font-size: 14px; line-height: 1.8; margin: -6px 0 24px; max-width: 650px; }
+.personality-points { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }
+.personality-points article { border-top: 2px solid #cfdbc5; padding: 20px 0 8px; }
+.point-label { font-size: 11px; color: #63715f; letter-spacing: .04em; }
+.personality-points h3 { font-size: 25px; font-weight: 650; margin: 14px 0 12px; letter-spacing: -.04em; }
+.personality-points p { font-size: 15px; line-height: 1.9; color: #4f604e; }
+.personal-reminder { display: flex; align-items: baseline; gap: 20px; margin: 24px 0; padding: 18px 22px; border-radius: 12px; background: #f4f0e4; }
+.personal-reminder span { flex-shrink: 0; font-size: 11px; color: #766c4e; }
+.personal-reminder strong { font-size: 16px; font-weight: 600; line-height: 1.7; color: #514c37; }
+.annual-focus { display: grid; grid-template-columns: 190px 1fr; gap: 25px; border: 1px solid #dce4d4; border-radius: 16px; padding: 28px; background: #eff3e9; }
+.annual-shishen { font-size: 12px; color: #637456; margin-top: 10px; }
+.annual-focus h3 { font-size: 23px; font-weight: 650; line-height: 1.4; margin-bottom: 12px; }
+.annual-focus > div > p:last-child:not(.annual-shishen) { font-size: 15px; line-height: 1.9; color: #4f604e; max-width: 620px; }
+.catalog-count { font-size: 11px; color: #617454; white-space: nowrap; border: 1px solid #d6dfce; padding: 7px 10px; border-radius: 100px; }
+.travel-preferences { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 16px; padding: 20px; border-radius: 14px; background: #f2f3ec; }
+.travel-preferences label { display: block; font-size: 11px; color: #5b6b54; }
+.travel-preferences select { display: block; width: 100%; background: #fff; color: #294635; font-size: 14px; font-weight: 500; border: 1px solid #d6dfce; padding: 10px; border-radius: 8px; margin-top: 9px; }
+.destination-group { margin-top: 29px; }.destination-group > h3 { font-size: 15px; font-weight: 600; margin-bottom: 15px; }
+.destination-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 14px; }
+.destination-card { border: 1px solid #e0e5d8; background: #fff; border-radius: 14px; padding: 22px; display: flex; flex-direction: column; }
+.destination-top { display: flex; justify-content: space-between; gap: 10px; font-size: 10px; color: #6c7962; }.destination-top span:last-child { font-variant-numeric: tabular-nums; color: #9aa38f; }
+.destination-card h4 { font-size: 27px; font-weight: 650; margin: 12px 0; letter-spacing: -.04em; }
+.destination-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 14px; }
+.destination-tags span { background: #f1f3ed; color: #5e6e54; font-size: 10px; padding: 4px 7px; border-radius: 4px; }
+.destination-tags .matched { background: #e3edda; color: #345227; }
+.destination-card > p { color: #596751; font-size: 13px; line-height: 1.85; margin-bottom: 13px; }
+.destination-card .destination-reason { font-size: 14px; color: #314c30; font-weight: 550; }
+.destination-note { border-top: 1px solid #e6e9df; padding-top: 14px; margin-top: auto; }
+.destination-note strong { font-size: 10px; color: #6b735a; font-weight: 500; }.destination-note p { font-size: 12px; line-height: 1.8; color: #68705e; margin-top: 6px; }
+.destination-footer { display: flex; align-items: center; gap: 20px; margin-top: 22px; }.destination-footer p { font-size: 11px; line-height: 1.8; color: #6c7962; }
+.detail-shishen { display: inline-block; font-size: 12px; font-weight: 600; border-radius: 5px; background: #e7eddf; color: #456032; padding: 6px 10px; margin-bottom: 15px; }
+.month-detail .detail-intro { font-size: 23px; line-height: 1.6; font-weight: 650; letter-spacing: -.025em; }
+.shishen-explanation { padding: 19px 0 0; }.shishen-explanation h3 { font-size: 12px; color: #60734f; margin: 0 0 7px; }.shishen-explanation p { font-size: 14px; color: #52624a; line-height: 1.85; }
+.month-focus { margin-top: 22px; border-left: 3px solid #77945f; padding: 17px 18px; background: #edf2e5; border-radius: 0 9px 9px 0; }.month-focus span { display: block; color: #667952; font-size: 11px; margin-bottom: 9px; }.month-focus strong { display: block; font-size: 18px; font-weight: 650; line-height: 1.65; }
+.month-detail li { color: #4e6048; font-size: 15px; }.month-detail small { display: block; line-height: 1.8; }
+@media (max-width: 640px) {
+  .month-top .shishen-label { font-size: 10px; padding: 2px 5px; }
+  .section-intro { font-size: 13px; margin-bottom: 20px; }.personality-points { grid-template-columns: 1fr; gap: 10px; }.personality-points article { padding: 16px 0 12px; border-top-width: 1px; }.personality-points h3 { font-size: 24px; margin: 10px 0; }.personality-points p { font-size: 15px; line-height: 1.85; }
+  .personal-reminder { flex-direction: column; gap: 8px; padding: 17px; margin-top: 15px; }.personal-reminder strong { font-size: 16px; }.annual-focus { grid-template-columns: 1fr; padding: 21px; gap: 17px; }.annual-focus h3 { font-size: 22px; }.annual-shishen { margin-top: 6px; }
+  .travel-preferences { padding: 14px 10px; gap: 7px; }.travel-preferences select { padding: 10px 4px; font-size: 12px; }.travel-preferences label { font-size: 10px; }.destination-grid { grid-template-columns: 1fr; gap: 12px; }.destination-card { padding: 21px; }.destination-card h4 { font-size: 27px; }.destination-card > p { font-size: 14px; }.destination-note p { font-size: 13px; }.destination-footer { flex-direction: column; gap: 12px; align-items: stretch; }.destination-footer p { text-align: center; }.month-detail .detail-intro { font-size: 22px; }.month-detail { padding-top: 22px; }
+}

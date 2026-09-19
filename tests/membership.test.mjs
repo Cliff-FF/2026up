@@ -21,3 +21,14 @@ test('only server-verified active membership receives monthly detail', async () 
 test('membership service failure fails closed', async () => { assert.equal((await run({ membershipStatus: 500 })).code, 503); assert.equal((await run({ networkFailure: true })).code, 503); });
 test('missing configuration fails closed', async () => { assert.equal((await run({ settings: {} })).code, 503); });
 test('invalid detail keys and unsupported methods rejected', async () => { assert.equal((await run({ shishen: '__proto__' })).code, 400); assert.equal((await run({ method: 'POST' })).code, 405); });
+test('all ten shishen return a short explanation and a concrete monthly focus after verification', async () => {
+  for (const shishen of ['正财', '偏财', '正官', '七杀', '比肩', '劫财', '食神', '伤官', '正印', '偏印']) {
+    const { code, body } = await run({ shishen });
+    assert.equal(code, 200);
+    assert.match(body.intro, /这个月/);
+    assert.ok(body.meaning.includes(shishen));
+    assert.ok(body.focus.length > 8 && body.focus.length < 50);
+    assert.ok(body.actions.every(a => a.length < 35));
+    assert.equal(body.actions.length, 3);
+  }
+});

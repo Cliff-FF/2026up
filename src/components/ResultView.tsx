@@ -3,6 +3,7 @@ import { ArrowUpRight, Download, Loader2, X } from 'lucide-react';
 import type { BaZiResult } from '../lib/gemini';
 import { getToken, loadDetail, login, portalUrl, type MonthDetail } from '../lib/membership';
 import { savePoster } from '../lib/poster';
+import { CityRecommendations } from './CityRecommendations';
 
 type Month = BaZiResult['monthlyEnergy'][number];
 export function ResultView({ result, reset }: { result: BaZiResult; reset: () => void }) {
@@ -20,8 +21,8 @@ export function ResultView({ result, reset }: { result: BaZiResult; reset: () =>
     <section className="annual-poster" aria-labelledby="annual-title">
       <div className="poster-heading"><div><p className="eyebrow">你的年度行动指南 · 2026</p><h1 id="annual-title">顺着节奏，<br className="mobile-break" /><span>把日子过好。</span></h1><p className="poster-subtitle">一年十二个月，每个月只抓住一件重要的事。</p></div><div className="year-stamp" aria-hidden="true">20<br />26<span>顺时而行 · 悦己而活</span></div></div>
       <div className="poster-persona"><span>你的生活底色</span><strong>{result.vibeLabel}</strong><span className="persona-tags">{result.tags.slice(0, 3).join(' / ')}</span></div>
-      <div className="month-grid">{result.monthlyEnergy.map((month, index) => <button className={`month-tile tone-${Math.floor(index / 3)}`} key={month.monthNumber} onClick={() => setSelected(month)} aria-label={`${month.monthNumber}月，${month.direction}，查看详细解读`}>
-        <span className="month-top"><span><b>{String(month.monthNumber).padStart(2, '0')}</b> 月</span><ArrowUpRight size={15} /></span><strong>{month.direction}</strong><span className="month-hint">{month.vibe}</span>
+      <div className="month-grid">{result.monthlyEnergy.map((month, index) => <button className={`month-tile tone-${Math.floor(index / 3)}`} key={month.monthNumber} onClick={() => setSelected(month)} aria-label={`${month.monthNumber}月，${month.shishen}，${month.direction}，查看详细解读`}>
+        <span className="month-top"><span><b>{String(month.monthNumber).padStart(2, '0')}</b> 月</span><span className="shishen-label">{month.shishen}</span></span><strong>{month.direction}</strong><span className="month-hint">{month.vibe}<ArrowUpRight size={13} /></span>
       </button>)}</div>
       <div className="poster-bottom"><span>不必时时用力，只需月月有方向。</span><span>顺月 × FFCLIFF</span></div>
     </section>
@@ -34,8 +35,14 @@ export function ResultView({ result, reset }: { result: BaZiResult; reset: () =>
         <tr className="meanings"><th scope="row">解读</th>{result.eightCharacters.map(p => <td key={p.pillar}>{p.meaning}</td>)}</tr>
       </tbody></table></div>
     </section>
-    <section className="reading-section interpretation"><div className="section-heading"><div><p className="eyebrow">02 / 读懂你的节奏</p><h2>先了解自己，再决定往哪里走。</h2></div></div><div className="interpretation-grid"><article><h3>{result.vibeLabel}</h3><p>{result.prediction}</p></article><aside><span className="eyebrow">这一年的提醒</span><h3>{result.yearlyStrategy.directionTag}</h3><p>{result.yearlyStrategy.coreAdvice}</p></aside></div></section>
-    <section className="reading-section"><div className="section-heading"><div><p className="eyebrow">03 / 换个地方，换种心情</p><h2>适合你的远方</h2></div></div><div className="city-grid">{[...result.yearlyStrategy.domesticCities, ...result.yearlyStrategy.intlCities].map(city => <article key={city.name}><span>目的地灵感</span><h3>{city.name}</h3><p>{city.reason}</p></article>)}</div></section>
+    <section className="reading-section interpretation" aria-labelledby="personality-title">
+      <div className="section-heading"><div><p className="eyebrow">02 / 你适合怎么过</p><h2 id="personality-title">{result.personality.headline}</h2></div></div>
+      <p className="section-intro">{result.personality.summary}</p>
+      <div className="personality-points">{result.personality.points.map((point, index) => <article key={point.label}><span className="point-label">0{index + 1} / {point.label}</span><h3>{point.title}</h3><p>{point.text}</p></article>)}</div>
+      <div className="personal-reminder"><span>给你的提醒</span><strong>{result.personality.reminder}</strong></div>
+      <aside className="annual-focus"><div><span className="eyebrow">2026 年的行动主题</span><p className="annual-shishen">流年十神 · {result.yearlyStrategy.shishen}</p></div><div><h3>{result.yearlyStrategy.directionTag}</h3><p>{result.yearlyStrategy.coreAdvice}</p></div></aside>
+    </section>
+    <CityRecommendations initial={result.travelPreference} />
     <footer className="result-footer"><strong>顺月 <span>SHUNYUE</span></strong><p>生辰与性格的趣味探索，给生活一些灵感。行动由你决定。</p><p>月份以公历编号，流月解读按节气区间，具体日期见月度详情。</p><button onClick={reset}>重新开始 →</button></footer>
     {selected && <MonthDialog month={selected} close={() => setSelected(null)} />}
   </main>;
@@ -77,7 +84,7 @@ function MonthDialog({ month, close }: { month: Month; close: () => void }) {
   }
   return <dialog ref={dialog} className="month-dialog" onCancel={close} onClick={e => { if (e.target === e.currentTarget) close(); }}>
     <div className="dialog-content"><button autoFocus className="dialog-close" onClick={close} aria-label="关闭"><X size={20} /></button><p className="eyebrow">2026 · {month.monthNumber} 月行动指南</p><h2>{month.direction}</h2><p className="dialog-subtitle">{month.dateRange} · {month.month} · {month.element}</p>
-      {detail ? <div className="month-detail"><p className="detail-intro">{detail.intro}</p><h3>这个月，可以这样做</h3><ol>{detail.actions.map(action => <li key={action}>{action}</li>)}</ol><h3>留意一件事</h3><p>{detail.avoid}</p><div className="reflection"><span>月末，问问自己</span><p>{detail.question}</p></div><small>这是一份行动灵感，不是对未来的保证。</small></div> : <>
+      {detail ? <div className="month-detail"><span className="detail-shishen">本月十神 · {month.shishen}</span><p className="detail-intro">{detail.intro}</p><div className="shishen-explanation"><h3>{month.shishen}，说人话就是</h3><p>{detail.meaning}</p></div><div className="month-focus"><span>这个月，抓住这一件事</span><strong>{detail.focus}</strong></div><h3>怎么做？三件小事就够了</h3><ol>{detail.actions.map(action => <li key={action}>{action}</li>)}</ol><h3>别踩这个坑</h3><p>{detail.avoid}</p><div className="reflection"><span>月底问自己一句</span><p>{detail.question}</p></div><small>以上是十神的传统解读与生活建议，不代表真实事件的发生概率。</small></div> : <>
         <div className="pro-offer"><span className="pro-badge">FFCLIFF PRO</span><h3>每个月，都知道怎么迈出下一步。</h3><p>订阅会员，畅看全部月份的详细解读、行动建议与月末复盘。</p><div className="pro-price">¥99 <span>/ 年</span></div><p className="free-note">年度行动卡、生辰表与整体解读始终免费</p></div>
         <a className="primary-button" href={portalUrl} target="_blank" rel="noopener noreferrer">前往注册与支付 <ArrowUpRight size={17} /></a><p className="payment-note">在 FFCLIFF 原会员页完成注册、付款与审核后，回到这里。使用同一账户验证，通过后自动打开本月。</p>
         <button className="secondary-button full-width" disabled={busy} onClick={() => { if (getToken()) void verify(); else setShowLogin(true); }}>{busy ? <><Loader2 size={16} className="animate-spin" />正在验证会员…</> : '已有会员 / 我已完成付款，验证资格'}</button>
