@@ -1,20 +1,26 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# 顺月
 
-# Run and deploy your AI Studio app
+仅在 `apps/shunyue` 内维护，独立安装、构建与部署。
 
-This contains everything you need to run your app locally.
+## 运行
 
-View your app in AI Studio: https://ai.studio/apps/2fed2f66-df35-401d-a258-0c431a540586
+Node.js 24+。`npm ci` 后复制 `.env.example` 为 `.env.local`，填写与 FFCLIFF 主站相同的公开 Supabase URL 和 anon key，以及原注册付款页地址。
 
-## Run Locally
+- `npm run dev`：Vite + 本地会员验证 API。
+- `npm run lint`：TypeScript 检查。
+- `npm test`：会员验证与详情访问边界测试。
+- `npm run build && npm start`：生产构建与 Node 服务；可设置 `PORT`。
 
-**Prerequisites:**  Node.js
+必须运行 Node 服务（或将 `/api/month-detail` 部署为等效服务端路由），不能仅发布 dist 或使用 vite preview。生产运行时也必须配置 Supabase 环境变量。月度付费文案只存在于服务端文件中，不进入浏览器包。
 
+## 结果与会员流程
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+12 个月总览、生辰表、性格解读和城市灵感免费。年度行动卡可导出 PNG，不含生辰输入。报告暂存在当前标签页的 sessionStorage，刷新可恢复，重新测算会清除。
+
+点击月份 → 验证已登录账户 → 非会员展示 FFCLIFF Pro ¥99/年入口 → 在新标签页打开原注册付款页面。因主站与顺月跨域、主站未提供 SSO 回传，返回后需在顺月使用同一账户登录一次。顺月在弹窗可见时每 15 秒及窗口重新聚焦时查询服务端；主站人工审核通过后自动打开所选月份。拒绝、未开通、失效登录及验证失败均不返回付费文案。
+
+## 已知主站接口限制
+
+主站目前用人工付款审核，不是支付网关即时回调；其 memberships 表只有 status，没有 expires_at。顺月严格使用现有服务端 `status = active` 权限，不自行创建付款成功状态。界面按照产品要求展示 ¥99/年，但年度到期、跨站无感登录与自动支付回调需要主站/共享后端增加能力，本次未修改其他仓库。
+
+原生辰计算为近似节气与城市经度换算，性格文案来自规则模板；问卷答案目前没有参与人格权重（旧逻辑仅使用答题数量）。此次保留计算体系，调整月序为 2026 年 1–12 月；每月按节气起始日命名，非公历整月。详情是对应十神的行动建议，不是新的精准预测模型。

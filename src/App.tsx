@@ -3,26 +3,30 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Sparkles, Calendar, MapPin, Brain, Share2, ChevronRight, Loader2, Compass, ArrowRight, Quote, Lock } from 'lucide-react';
+import { Sparkles, Calendar, ChevronRight, ArrowRight, Quote } from 'lucide-react';
 import { cn } from './lib/utils';
-import { calculateTrueSolarTime } from './lib/constants';
+import { ResultView } from './components/ResultView';
 import { analysisPersonality, type BaZiResult } from './lib/gemini';
+
+const reportKey = 'shunyue-report-v2';
+function restoreReport(): BaZiResult | null {
+  try { const report = JSON.parse(sessionStorage.getItem(reportKey) || 'null'); return report?.monthlyEnergy?.length === 12 && report.monthlyEnergy.every((m: { monthNumber: number }) => m.monthNumber >= 1 && m.monthNumber <= 12) ? report : null; } catch { return null; }
+}
 
 type Step = 'landing' | 'form' | 'quiz' | 'loading' | 'result';
 
 export default function App() {
-  const [step, setStep] = useState<Step>('landing');
+  const [step, setStep] = useState<Step>(() => restoreReport() ? 'result' : 'landing');
   const [birthData, setBirthData] = useState({
     date: '',
     time: '12:00',
     gender: '男',
     city: '北京'
   });
-  const [answers, setAnswers] = useState<{ q: string; a: string }[]>([]);
-  const [result, setResult] = useState<BaZiResult | null>(null);
-  const [isCapturing, setIsCapturing] = useState(false);
+  const [result, setResult] = useState<BaZiResult | null>(restoreReport);
+
 
   const handleStart = () => setStep('form');
 
@@ -32,7 +36,7 @@ export default function App() {
   };
 
   const handleQuizComplete = async (quizAnswers: { q: string; a: string }[]) => {
-    setAnswers(quizAnswers);
+
     setStep('loading');
     
     try {
@@ -44,6 +48,7 @@ export default function App() {
         quizAnswers
       );
       setResult(resultData);
+      try { sessionStorage.setItem(reportKey, JSON.stringify(resultData)); } catch { /* Report remains usable without browser storage. */ }
       setStep('result');
     } catch (error) {
       console.error(error);
@@ -65,8 +70,8 @@ export default function App() {
           >
             <div className="relative inline-block">
               <Sparkles className="w-12 h-12 text-gold absolute -top-8 -right-8 animate-pulse" />
-              <h1 className="text-5xl font-serif tracking-tighter leading-none italic mb-2">频率实验室</h1>
-              <p className="text-xs uppercase tracking-[0.3em] font-mono opacity-50">频率与身份实验室</p>
+              <h1 className="text-5xl font-serif tracking-tighter leading-none italic mb-2">顺月</h1>
+              <p className="text-xs uppercase tracking-[0.3em] font-mono opacity-50">每个月，找到自己的节奏</p>
             </div>
             
             <div className="space-y-4">
@@ -84,7 +89,7 @@ export default function App() {
               onClick={handleStart}
               className="group relative inline-flex items-center gap-2 px-8 py-4 bg-ink text-paper rounded-full font-medium overflow-hidden transition-all hover:pr-10 active:scale-95"
             >
-              <span>开启人设分析</span>
+              <span>生成我的年度行动卡</span>
               <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
             </button>
           </motion.div>
@@ -200,7 +205,7 @@ export default function App() {
         )}
 
         {step === 'result' && result && (
-          <ResultView result={result} reset={() => setStep('landing')} />
+          <ResultView result={result} reset={() => { try { sessionStorage.removeItem(reportKey); } catch {} setResult(null); setStep('landing'); }} />
         )}
       </AnimatePresence>
     </div>
@@ -331,456 +336,3 @@ function QuizStep({ onComplete }: { onComplete: (answers: { q: string; a: string
     </motion.div>
   );
 }
-
-function ResultView({ result, reset }: { result: BaZiResult, reset: () => void }) {
-  const [isPaid, setIsPaid] = useState(false);
-  const [showPayModal, setShowPayModal] = useState(false);
-
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: { 
-      opacity: 1,
-      transition: { staggerChildren: 0.1 }
-    }
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0 }
-  };
-
-  return (
-    <motion.div 
-      variants={containerVariants}
-      initial="hidden"
-      animate="visible"
-      className="max-w-4xl w-full py-12 px-4 space-y-16 pb-32 relative"
-    >
-      {/* Immediate Paywall Hook for high visibility - AT THE TOP */}
-      {!isPaid && (
-        <motion.div 
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="bg-gold/10 border border-gold/30 rounded-[2.5rem] p-8 text-center space-y-6 shadow-2xl shadow-gold/10 relative overflow-hidden"
-        >
-          <div className="absolute top-0 right-0 w-32 h-32 bg-gold/5 rounded-full blur-3xl -mr-16 -mt-16" />
-          <div className="space-y-2 relative z-10">
-             <div className="flex items-center justify-center gap-3">
-               <Lock className="w-5 h-5 text-gold animate-pulse" />
-               <h3 className="text-xl font-serif italic text-ink">2026 深度气场报告已生成</h3>
-             </div>
-             <p className="text-xs text-ink/50 leading-relaxed max-w-sm mx-auto">您的初始人设已就绪，但 2026 避坑指南与进阶副本数据需要同步 9.9 能量券即可解锁。</p>
-          </div>
-          <button 
-            onClick={() => setShowPayModal(true)}
-            className="w-full max-w-xs mx-auto py-5 bg-ink text-gold rounded-full text-xs font-black uppercase tracking-[0.3em] hover:bg-gold hover:text-ink transition-all active:scale-105 shadow-xl shadow-gold/20 flex items-center justify-center gap-3 group"
-          >
-            <Sparkles className="w-4 h-4 group-hover:rotate-12 transition-transform" />
-            <span>解锁完整进阶报告</span>
-          </button>
-          <div className="flex items-center justify-center gap-4 opacity-20">
-            <div className="h-px flex-1 bg-ink" />
-            <p className="text-[8px] font-mono whitespace-nowrap">TRUSTED BY 12,482 EXPERIMENTAL SUBJECTS</p>
-            <div className="h-px flex-1 bg-ink" />
-          </div>
-        </motion.div>
-      )}
-
-      {/* Main Social Identity Card */}
-      <motion.div
-        variants={itemVariants}
-        className="relative group"
-      >
-        <div className="absolute -inset-1 bg-gradient-to-r from-gold/30 via-ink/5 to-gold/30 rounded-[3rem] blur-2xl opacity-40 group-hover:opacity-100 transition duration-1000"></div>
-        <div className="relative bg-white rounded-[2.5rem] shadow-2xl overflow-hidden border border-ink/5">
-          <div className="absolute top-6 right-8 text-right z-20">
-            <p className="text-[10px] uppercase font-bold tracking-widest text-ink/30 mb-0.5">契合度</p>
-            <p className="text-4xl font-serif italic text-gold leading-none">{result.score}%</p>
-          </div>
-
-          <div className="p-8 md:p-14 space-y-10 relative">
-            <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[radial-gradient(#000_1px,transparent_1px)] [background-size:20px_20px]" />
-            
-            <div className="space-y-6 text-center pt-8">
-              <div className="inline-flex items-center gap-3 px-4 py-1.5 bg-paper rounded-full border border-gold/10">
-                <Sparkles className="w-3 h-3 text-gold" />
-                <span className="text-[10px] uppercase tracking-[0.3em] font-mono font-bold text-gold">人设编号 #{Math.floor(result.score * 777)}</span>
-              </div>
-              <div className="space-y-2">
-                <h2 className="text-5xl md:text-7xl font-serif tracking-tighter italic text-ink">{result.vibeLabel}</h2>
-                <p className="text-xl md:text-3xl font-serif text-gold/80 italic">{result.dayMaster}</p>
-              </div>
-            </div>
-
-            <div className="flex flex-wrap gap-2.5 justify-center">
-              {result.tags.map(tag => (
-                <span key={tag} className="px-5 py-2 bg-ink text-paper text-[11px] rounded-xl font-medium tracking-wider shadow-md hover:scale-105 transition-transform cursor-default italic">
-                  #{tag}
-                </span>
-              ))}
-            </div>
-
-            <div className="max-w-xl mx-auto space-y-6 relative">
-               <Quote className="w-10 h-10 opacity-5 text-gold absolute -top-4 -left-6" />
-               <p className="text-xl md:text-2xl leading-relaxed font-serif italic text-ink/90 text-center">
-                 {result.prediction}
-               </p>
-            </div>
-
-            <div className="pt-10 border-t border-ink/5 flex justify-between items-end">
-              <div className="space-y-1">
-                <p className="text-[10px] uppercase tracking-widest font-bold text-ink/40">2026 气场实验室</p>
-                <h4 className="text-2xl font-serif italic tracking-tighter text-ink opacity-80 leading-none">身份验证成功</h4>
-              </div>
-              <div className="flex flex-col items-end gap-2">
-                <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-paper text-ink/20 border border-ink/5">
-                  <Share2 className="w-5 h-5" />
-                </div>
-                <p className="text-[8px] opacity-30 font-mono tracking-tighter">IDENTIFICATION SCANNED</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </motion.div>
-
-
-      {/* Grid Sections with Paywall */}
-      <div className="relative">
-        <div className={cn("space-y-24 transition-all duration-1000", !isPaid && "filter blur-md pointer-events-none select-none opacity-40 brightness-95")}>
-          {/* Personality Matrix */}
-          <section className="space-y-12">
-            <div className="text-center space-y-2">
-              <h3 className="text-xs uppercase tracking-[0.4em] font-black text-ink/30">初始人设属性矩阵</h3>
-              <div className="h-px w-12 bg-gold/30 mx-auto" />
-            </div>
-            
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
-              {result.eightCharacters.map((item, idx) => (
-                <motion.div 
-                  key={idx}
-                  variants={itemVariants}
-                  className="bg-white p-6 rounded-[2rem] border border-ink/5 space-y-6 hover:shadow-2xl hover:shadow-gold/5 transition-all flex flex-col items-center text-center group"
-                >
-                  <div className="flex justify-between items-center w-full">
-                    <span className="text-[9px] font-black opacity-20 uppercase tracking-[0.2em]">{item.pillar}</span>
-                    <div className="h-1.5 w-1.5 rounded-full bg-gold/40 shadow-sm shadow-gold" />
-                  </div>
-                  
-                  <div className="w-full grid grid-cols-2 gap-2">
-                    <div className="space-y-2 p-3 bg-paper rounded-2xl border border-ink/5 group-hover:border-gold/30 transition-colors">
-                       <p className="text-3xl font-serif text-ink leading-none">{item.stem}</p>
-                       <span className="inline-block px-1.5 py-0.5 bg-gold/10 text-gold text-[8px] font-black uppercase tracking-wider rounded">{item.stemShishen}</span>
-                    </div>
-                    <div className="space-y-2 p-3 bg-paper/50 rounded-2xl border border-ink/5 group-hover:border-gold/20 transition-colors">
-                       <p className="text-3xl font-serif text-ink/40 leading-none">{item.branch}</p>
-                       <span className="inline-block px-1.5 py-0.5 bg-ink/5 text-ink/40 text-[8px] font-black uppercase tracking-wider rounded">{item.branchShishen}</span>
-                    </div>
-                  </div>
-
-                  <p className="text-[10px] text-ink/60 leading-relaxed font-serif italic pt-4 border-t border-ink/5 mt-auto">
-                    {item.meaning}
-                  </p>
-                </motion.div>
-              ))}
-            </div>
-          </section>
-
-          {/* Monthly Strategy - Interactive Cards */}
-          <section className="space-y-12 px-2">
-            <div className="text-center space-y-2">
-              <h3 className="text-xs uppercase tracking-[0.4em] font-black text-ink/30">2026 年度副本全攻略</h3>
-              <div className="h-px w-12 bg-gold/30 mx-auto" />
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-              {result.monthlyEnergy.map((m, idx) => (
-                <motion.div 
-                  key={idx} 
-                  variants={itemVariants}
-                  className="group bg-white p-8 rounded-[2.5rem] border border-ink/5 flex flex-col gap-6 hover:border-gold/30 hover:shadow-2xl transition-all relative overflow-hidden"
-                >
-                  <div className="absolute top-0 right-0 w-24 h-24 bg-gold/5 rounded-bl-[4rem] -mr-8 -mt-8 grayscale group-hover:grayscale-0 transition-all opacity-20" />
-                  
-                  <div className="flex justify-between items-start relative z-10">
-                    <div className="flex gap-4 items-center">
-                      <div className="text-5xl font-serif italic text-ink/10 group-hover:text-gold/20 transition-colors uppercase">
-                        {(idx + 1).toString().padStart(2, '0')}
-                      </div>
-                      <div className="space-y-1">
-                        <p className="text-[9px] font-mono opacity-40 uppercase">{m.month}</p>
-                        <div className="text-xs font-black text-gold uppercase tracking-widest">{m.element} 能量</div>
-                      </div>
-                    </div>
-                    <div className="bg-ink text-paper px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-tighter shadow-lg shadow-ink/10">
-                      {m.shishen} Buff
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-4 relative z-10">
-                    <div className="space-y-1">
-                      <h4 className="text-xl font-bold text-ink group-hover:text-gold transition-colors">{m.direction}</h4>
-                      <p className="text-[9px] opacity-30 font-mono tracking-widest">{m.dateRange}</p>
-                    </div>
-                    <div className="p-4 bg-paper/50 rounded-2xl border border-ink/5 space-y-2">
-                      <p className="text-xs font-serif italic text-ink/70 leading-relaxed"><span className="text-gold font-bold not-italic mr-1">生效：</span>{m.shishenMeaning}</p>
-                      <p className="text-[10px] opacity-50 font-serif leading-relaxed">{m.vibe}</p>
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          </section>
-
-          {/* Geography Strategy - Travel Cards style */}
-          <section className="bg-ink text-paper rounded-[4rem] px-8 py-16 md:p-20 space-y-16 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-gold/5 rounded-full blur-[100px] -mr-64 -mt-64" />
-            
-            <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 relative z-10">
-              <div className="space-y-6">
-                <div className="inline-flex items-center gap-3 px-5 py-2 bg-paper/5 rounded-full border border-paper/10 backdrop-blur-md">
-                  <MapPin className="w-4 h-4 text-gold" />
-                  <span className="text-[10px] uppercase tracking-[0.2em] font-black text-gold">气场大地图 • CO-EXPANSION</span>
-                </div>
-                <h3 className="font-serif text-5xl md:text-7xl italic leading-none tracking-tighter">地理共生<br /><span className="text-gold">补全计划</span></h3>
-              </div>
-              <div className="max-w-md lg:text-right">
-                <p className="text-base font-serif italic text-paper/60 leading-relaxed mb-4">
-                  “物理空间的跨越本质上是频率的重新校准。”
-                </p>
-                <div className="flex flex-wrap lg:justify-end gap-2">
-                  <span className="px-3 py-1 bg-paper/10 rounded-lg text-[9px] font-mono opacity-50">AIR PRESSURE: OPTIMAL</span>
-                  <span className="px-3 py-1 bg-paper/10 rounded-lg text-[9px] font-mono opacity-50">COORDS: SCANNING</span>
-                </div>
-              </div>
-            </div>
-            
-            <div className="grid xl:grid-cols-2 gap-16 relative z-10">
-              {/* Domestic */}
-              <div className="space-y-8">
-                <div className="flex items-center gap-4">
-                  <h4 className="text-[10px] font-black uppercase tracking-[0.4em] text-paper/30">国内主干副本</h4>
-                  <div className="h-px flex-1 bg-paper/10" />
-                </div>
-                <div className="grid gap-6">
-                  {result.yearlyStrategy.domesticCities.map(city => (
-                    <motion.div 
-                      key={city.name} 
-                      whileHover={{ x: 10 }}
-                      className="group bg-paper/5 p-8 rounded-3xl border border-paper/10 hover:border-gold/30 hover:bg-paper/[0.08] transition-all relative"
-                    >
-                      <div className="flex justify-between items-center mb-6">
-                        <div className="space-y-1">
-                          <span className="text-3xl font-serif italic text-paper group-hover:text-gold transition-colors">{city.name}</span>
-                          <p className="text-[10px] opacity-30 font-mono tracking-widest uppercase italic">Primary Node</p>
-                        </div>
-                        <div className="text-right">
-                          <p className="text-4xl font-mono text-gold italic font-black leading-none">{city.score}</p>
-                          <p className="text-[8px] font-black opacity-20 uppercase tracking-widest">Similarity</p>
-                        </div>
-                      </div>
-                      <div className="relative pl-6 py-1 border-l-2 border-gold/20 group-hover:border-gold/50 transition-colors">
-                        <p className="text-xs text-paper/70 font-serif italic leading-relaxed">
-                          {city.reason}
-                        </p>
-                      </div>
-                    </motion.div>
-                  ))}
-                </div>
-              </div>
-
-              {/* International */}
-              <div className="space-y-8">
-                <div className="flex items-center gap-4">
-                  <h4 className="text-[10px] font-black uppercase tracking-[0.4em] text-paper/30">跨域跃迁副本</h4>
-                  <div className="h-px flex-1 bg-paper/10" />
-                </div>
-                <div className="grid gap-6">
-                  {result.yearlyStrategy.intlCities.map(city => (
-                    <motion.div 
-                      key={city.name} 
-                      whileHover={{ x: -10 }}
-                      className="group bg-paper/5 p-8 rounded-3xl border border-paper/10 hover:border-gold/30 hover:bg-paper/[0.08] transition-all"
-                    >
-                      <div className="flex justify-between items-center mb-6">
-                        <div className="space-y-1">
-                          <span className="text-3xl font-serif italic text-paper group-hover:text-gold transition-colors">{city.name}</span>
-                          <p className="text-[10px] opacity-30 font-mono tracking-widest uppercase italic">Dimensional Link</p>
-                        </div>
-                        <div className="text-right">
-                          <p className="text-4xl font-mono text-gold italic font-black leading-none">{city.score}</p>
-                          <p className="text-[8px] font-black opacity-20 uppercase tracking-widest">Similarity</p>
-                        </div>
-                      </div>
-                      <div className="relative pl-6 py-1 border-l-2 border-gold/20 group-hover:border-gold/50 transition-colors">
-                        <p className="text-xs text-paper/70 font-serif italic leading-relaxed">
-                          {city.reason}
-                        </p>
-                      </div>
-                    </motion.div>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            <motion.div 
-              whileHover={{ scale: 1.01 }}
-              className="relative z-10 pt-8"
-            >
-               <div className="p-12 bg-white/5 rounded-[3rem] border border-paper/10 backdrop-blur-2xl flex flex-col md:flex-row gap-10 items-center md:items-start group">
-                  <div className="shrink-0 p-6 bg-gold rounded-full shadow-[0_0_50px_rgba(212,175,55,0.3)] group-hover:rotate-12 transition-transform">
-                     <Brain className="w-10 h-10 text-ink" />
-                  </div>
-                  <div className="space-y-6 text-center md:text-left">
-                    <div className="space-y-2">
-                       <span className="text-[10px] font-black text-gold tracking-[0.4em] uppercase">核心策略汇总 • Core Strategic Advice</span>
-                       <div className="h-0.5 w-12 bg-gold/50 mx-auto md:mx-0" />
-                    </div>
-                    <div className="space-y-4">
-                      <div className="inline-flex items-center gap-2 px-3 py-1 bg-gold/20 rounded-lg text-xs font-bold text-gold italic">
-                         # {result.yearlyStrategy.directionTag}
-                      </div>
-                      <h5 className="text-3xl md:text-5xl font-serif italic leading-none tracking-tighter text-paper">
-                        “{result.yearlyStrategy.coreAdvice}”
-                      </h5>
-                    </div>
-                  </div>
-               </div>
-            </motion.div>
-          </section>
-
-          {/* Footer Actions */}
-          <div className="flex flex-col items-center gap-12 py-16">
-             <button 
-               onClick={reset}
-               className="group px-14 py-6 rounded-full border-2 border-ink text-xs font-black uppercase tracking-[0.3em] text-ink hover:bg-ink hover:text-paper transition-all hover:scale-105 active:scale-95 shadow-2xl"
-             >
-               重新采集意识流
-             </button>
-             <div className="space-y-4 text-center">
-               <div className="flex items-center justify-center gap-4 opacity-10">
-                 <div className="w-12 h-px bg-ink" />
-                 <p className="text-[10px] font-mono tracking-widest uppercase">Atmosphere Lab v5.0 Final Build</p>
-                 <div className="w-12 h-px bg-ink" />
-               </div>
-               <p className="text-[8px] opacity-10 uppercase tracking-[0.5em] font-mono">ENCRYPTED DATA PROTECTION • ZERO PERSISTENCE POLICY</p>
-             </div>
-          </div>
-        </div>
-
-        {/* Paywall Overlay */}
-        <AnimatePresence>
-          {!isPaid && (
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="absolute inset-0 z-40 flex flex-col items-center justify-center pt-[600px] pointer-events-none"
-            >
-              <div className="max-w-sm w-full bg-white/95 backdrop-blur-2xl p-10 rounded-[3.5rem] border border-gold/20 shadow-[0_50px_100px_rgba(0,0,0,0.1)] text-center space-y-8 pointer-events-auto">
-                <div className="space-y-4">
-                  <div className="w-16 h-16 bg-gold/10 rounded-full flex items-center justify-center mx-auto border border-gold/20">
-                    <Lock className="w-8 h-8 text-gold animate-bounce" />
-                  </div>
-                  <div className="space-y-1">
-                    <h3 className="text-3xl font-serif italic text-ink">读取失败</h3>
-                    <p className="text-xs uppercase tracking-widest text-gold font-black">能量耦合不足</p>
-                  </div>
-                  <p className="text-xs opacity-50 px-4 leading-relaxed font-serif italic">由于 2026 副本数据量级巨大，需同步 9.9 能量券以解锁完整气场报告与补能方案。</p>
-                </div>
-                
-                <button 
-                  onClick={() => setShowPayModal(true)}
-                  className="w-full py-5 bg-ink text-paper rounded-[2rem] font-black uppercase tracking-widest text-xs transition-all hover:bg-gold hover:text-ink active:scale-[0.98] shadow-2xl flex items-center justify-center gap-3 group"
-                >
-                  <Sparkles className="w-4 h-4 group-hover:rotate-12 transition-transform" />
-                  <span>立即同步结果</span>
-                </button>
-                
-                <div className="flex items-center justify-center gap-2 opacity-30">
-                   <div className="w-1 h-1 rounded-full bg-ink" />
-                   <div className="w-1 h-1 rounded-full bg-ink" />
-                   <div className="w-1 h-1 rounded-full bg-ink" />
-                   <p className="text-[10px] font-mono italic">SYNCING 12,482 USERS...</p>
-                </div>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* Payment Modal */}
-        <AnimatePresence>
-          {showPayModal && (
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink/70 backdrop-blur-xl"
-            >
-              <motion.div 
-                initial={{ scale: 0.9, y: 30 }}
-                animate={{ scale: 1, y: 0 }}
-                exit={{ scale: 0.9, y: 30 }}
-                className="bg-white max-w-sm w-full rounded-[3.5rem] overflow-hidden shadow-[0_50px_100px_rgba(0,0,0,0.3)] border border-white/20"
-              >
-                <div className="p-10 text-center space-y-8">
-                  <div className="flex flex-col items-center gap-2">
-                    <div className="px-3 py-1 bg-[#07C160]/10 rounded-full border border-[#07C160]/20 flex items-center gap-2">
-                      <div className="w-1.5 h-1.5 bg-[#07C160] rounded-full animate-pulse" />
-                      <span className="text-[9px] font-black text-[#07C160] uppercase tracking-widest">Secure Link Established</span>
-                    </div>
-                    <h3 className="text-2xl font-bold tracking-tight">微信支付</h3>
-                  </div>
-                  
-                  <div className="relative group">
-                    <div className="absolute -inset-4 bg-[#07C160]/5 rounded-[3rem] blur-xl opacity-0 group-hover:opacity-100 transition duration-700"></div>
-                    <div className="relative aspect-square max-w-[200px] mx-auto bg-white rounded-[2.5rem] border-2 border-[#07C160]/10 flex items-center justify-center p-2 shadow-sm overflow-hidden">
-                       <img 
-                         src="/IMG_3368.JPG" 
-                         alt="WeChat Pay QR Code" 
-                         className="w-full h-full object-contain"
-                         onError={(e) => {
-                           // Fallback if image not found in root
-                           e.currentTarget.src = "https://placehold.co/400x400?text=Please+Upload+IMG_3368.JPG";
-                         }}
-                       />
-                       <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                          <div className="bg-white p-1 rounded-xl shadow-lg border border-ink/5 opacity-50">
-                            <div className="w-6 h-6 bg-[#07C160] rounded-lg flex items-center justify-center">
-                              <img src="https://upload.wikimedia.org/wikipedia/commons/7/73/WeChat_logo.svg" className="w-4 h-4 brightness-0 invert" alt="WeChat" />
-                            </div>
-                          </div>
-                       </div>
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-1">
-                    <p className="text-4xl font-serif italic text-gold font-bold">¥9.90</p>
-                    <p className="text-[10px] font-mono opacity-30 uppercase tracking-[0.2em]">Transaction ID: LAB_{Math.random().toString(36).substr(2, 9).toUpperCase()}</p>
-                  </div>
-
-                  <div className="grid gap-3 pt-4">
-                    <button 
-                      onClick={() => {
-                          setIsPaid(true);
-                          setShowPayModal(false);
-                      }}
-                      className="w-full py-5 bg-[#07C160] text-white rounded-[2rem] font-black uppercase tracking-widest text-xs transition-all hover:bg-[#06ae56] active:scale-[0.98] shadow-xl shadow-[#07C160]/20"
-                    >
-                      我已支付
-                    </button>
-                    <button 
-                      onClick={() => setShowPayModal(false)}
-                      className="w-full py-4 bg-paper text-ink/40 rounded-2xl font-bold transition-all hover:bg-ink/5 text-xs uppercase tracking-widest"
-                    >
-                      取消扫描
-                    </button>
-                  </div>
-                </div>
-              </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-    </motion.div>
-  );
-}
-

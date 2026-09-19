@@ -13,6 +13,7 @@ export interface BaZiResult {
   dayMaster: string;
   eightCharacters: BaZiCharacter[];
   monthlyEnergy: {
+    monthNumber: number;
     month: string;
     dateRange: string;
     element: string;
@@ -228,6 +229,7 @@ export async function analysisPersonality(
 
   // 6. 2026 丙午年 12个月流月能量精准校准
   const MONTH_DATES_2026 = [
+    { name: "己丑", range: "01.05 - 02.03", stem: "己" },
     { name: "庚寅", range: "02.04 - 03.04", stem: "庚" },
     { name: "辛卯", range: "03.05 - 04.03", stem: "辛" },
     { name: "壬辰", range: "04.04 - 05.04", stem: "壬" },
@@ -238,8 +240,7 @@ export async function analysisPersonality(
     { name: "丁酉", range: "09.07 - 10.07", stem: "丁" },
     { name: "戊戌", range: "10.08 - 11.06", stem: "戊" },
     { name: "己亥", range: "11.07 - 12.06", stem: "己" },
-    { name: "庚子", range: "12.07 - 01.04", stem: "庚" },
-    { name: "辛丑", range: "01.05 - 02.03", stem: "辛" }
+    { name: "庚子", range: "12.07 - 2027.01.04", stem: "庚" }
   ];
 
   const getShishenMeaning = (shishen: string) => {
@@ -266,15 +267,15 @@ export async function analysisPersonality(
   const getMonthlyDirection = (shishen: string) => {
     const directions: Record<string, string> = {
       "正财": "踏实搞钱",
-      "偏财": "横财就手",
-      "正官": "事业开挂",
-      "七杀": "硬核突围",
-      "比肩": "组队快跑",
-      "劫财": "守好荷包",
-      "食神": "开心干饭",
-      "伤官": "脑洞大开",
-      "正印": "原地回血",
-      "偏印": "古灵精怪"
+      "偏财": "探索机会",
+      "正官": "推进事业",
+      "七杀": "迎接挑战",
+      "比肩": "寻找伙伴",
+      "劫财": "存钱减负",
+      "食神": "好好生活",
+      "伤官": "大胆创作",
+      "正印": "学习充电",
+      "偏印": "独处沉淀"
     };
     return directions[shishen] || "顺势顺心";
   };
@@ -306,9 +307,10 @@ export async function analysisPersonality(
       createPillar("日柱", dayPillar, "核心人设，你灵魂最底层的色调。"),
       createPillar("时柱", hourPillar, "代表未来输出与最终的成就归宿。")
     ],
-    monthlyEnergy: MONTH_DATES_2026.map((m) => {
+    monthlyEnergy: MONTH_DATES_2026.map((m, index) => {
       const mShishen = shishenData[m.stem] || "气场";
       return {
+        monthNumber: index + 1,
         month: m.name,
         dateRange: `2026 ${m.range}`,
         element: getElement(m.stem),
